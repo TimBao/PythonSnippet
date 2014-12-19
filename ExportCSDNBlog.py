@@ -3,7 +3,7 @@
 # Author        : kesalin@gmail.com
 # Blog          : http://kesalin.github.io
 # Date          : 2014/10/18
-# Description   : Export CSND blog articles to Markdown files. 
+# Description   : Export CSND blog articles to Markdown files.
 # Version       : 1.0.0.0
 # Python Version: Python 2.7.3
 #
@@ -20,15 +20,15 @@ from bs4 import BeautifulSoup
 
 #===========================================================================
 # set your CSDN username
-__username__ = "kesalin"
+__username__ = "goof"
 
 # set output dir
-__output__ = "C:/Code/Python"
+__output__ = "./"
 
 enableLog = True
 
 # for test
-#__testArticleUrl__ = "http://blog.csdn.net/kesalin/article/details/5414998"
+__testArticleUrl__ = "http://blog.csdn.net/goof/article/details/40825057"
 
 #===========================================================================
 
@@ -43,7 +43,7 @@ def log(str):
         newFile = open('log.txt', 'a+')
         newFile.write(str + '\n')
         newFile.close()
-        
+
 def decodeHtmlSpecialCharacter(htmlStr):
     specChars = {"&ensp;" : "", \
                  "&emsp;" : "", \
@@ -105,7 +105,7 @@ def exportToMarkdown(exportDir, postdate, categories, title, content):
     newFile.write('categories: [' + categories + ']' + '\n')
     newFile.write('tags: [' + categories + ']' + '\n')
     newFile.write('description: \"' + title + '\"\n')
-    newFile.write('keywords: ' + categories + '\n') 
+    newFile.write('keywords: ' + categories + '\n')
     newFile.write('---' + '\n\n')
     newFile.write(content)
     newFile.write('\n')
@@ -120,7 +120,7 @@ def download(url, output):
     categories = ""
     content = ""
     postDate = datetime.datetime.now()
-    
+
     global gRetryCount
     count = 0
     while True:
@@ -150,14 +150,14 @@ def download(url, output):
     for titleDoc in titleDocs:
         titleStr = titleDoc.a.get_text().encode('UTF-8')
         title = titleStr.replace(topTile, '').strip()
-        #log(" >> title: " + title)
+        log(" >> title: " + title)
 
     manageDocs = soup.find_all("div", "article_manage")
     for managerDoc in manageDocs:
         categoryDoc = managerDoc.find_all("span", "link_categories")
         if len(categoryDoc) > 0:
             categories = categoryDoc[0].a.get_text().encode('UTF-8').strip()
-        
+
         postDateDoc = managerDoc.find_all("span", "link_postdate")
         if len(postDateDoc) > 0:
             postDateStr = postDateDoc[0].string.encode('UTF-8').strip()
@@ -168,19 +168,25 @@ def download(url, output):
         htmlContent = contentDoc.prettify().encode('UTF-8')
         content = htmlContent2String(htmlContent)
 
-    exportToMarkdown(output, postDate, categories, title, content)
+    # remove empty lines and white space
+    newContent = '\n'.join([i for i in content.split('\n') if len(i.strip()) > 0])
+    print newContent
+
+    exportToMarkdown(output, postDate, categories, title, newContent)
 
 def getPageUrlList(url):
     # 获取所有的页面的 url
     request = urllib2.Request(url, None, header)
     response = urllib2.urlopen(request)
     data = response.read()
-    
+
     #print data
     soup = BeautifulSoup(data)
 
     lastArticleHref = None
+    print "--- ==b "
     pageListDocs = soup.find_all(id="papelist")
+    print "--- ==e "
     for pageList in pageListDocs:
         hrefDocs = pageList.find_all("a")
         if len(hrefDocs) > 0:
@@ -189,7 +195,7 @@ def getPageUrlList(url):
 
     if lastArticleHref == None:
         return []
-    
+
     print " > last page href:" + lastArticleHref
     lastPageIndex = lastArticleHref.rfind("/")
     lastPageNum = int(lastArticleHref[lastPageIndex+1:])
@@ -207,7 +213,7 @@ def getPageUrlList(url):
 def getArticleList(url):
     # 获取所有的文章的 url/title
     pageUrlList = getPageUrlList(url)
-    
+
     articleListDocs = []
 
     strPage = " > parsing page {0}"
@@ -226,10 +232,10 @@ def getArticleList(url):
                 request = urllib2.Request(pageUrl, None, header)
                 response = urllib2.urlopen(request)
                 data = response.read().decode('UTF-8')
-                
+
                 #print data
                 soup = BeautifulSoup(data)
-                
+
                 topArticleDocs = soup.find_all(id="article_toplist")
                 articleDocs = soup.find_all(id="article_list")
                 articleListDocs = articleListDocs + topArticleDocs + articleDocs
@@ -237,7 +243,7 @@ def getArticleList(url):
             except Exception, e:
                 print "getArticleList exception:%s, url:%s, retry count:%d" % (e, pageUrl, retryCount)
                 pass
-    
+
     artices = []
     topTile = "[置顶]"
     for articleListDoc in articleListDocs:
@@ -293,5 +299,5 @@ def exportBlog(username, output):
         download(article[0], username)
 
 log("============================================================")
-exportBlog(__username__, __output__)
-#download(__testArticleUrl__, __output__)
+#exportBlog(__username__, __output__)
+download(__testArticleUrl__, __output__)
