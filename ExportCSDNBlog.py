@@ -170,7 +170,7 @@ def download(url, output):
 
     # remove empty lines and white space
     newContent = '\n'.join([i for i in content.split('\n') if len(i.strip()) > 0])
-    print newContent
+    #print newContent
 
     exportToMarkdown(output, postDate, categories, title, newContent)
 
