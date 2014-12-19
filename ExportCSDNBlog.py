@@ -28,7 +28,7 @@ __output__ = "./"
 enableLog = True
 
 # for test
-__testArticleUrl__ = "http://blog.csdn.net/goof/article/details/40825057"
+#__testArticleUrl__ = "http://blog.csdn.net/goof/article/details/40825057"
 
 #===========================================================================
 
@@ -184,9 +184,7 @@ def getPageUrlList(url):
     soup = BeautifulSoup(data)
 
     lastArticleHref = None
-    print "--- ==b "
     pageListDocs = soup.find_all(id="papelist")
-    print "--- ==e "
     for pageList in pageListDocs:
         hrefDocs = pageList.find_all("a")
         if len(hrefDocs) > 0:
@@ -299,5 +297,5 @@ def exportBlog(username, output):
         download(article[0], username)
 
 log("============================================================")
-#exportBlog(__username__, __output__)
-download(__testArticleUrl__, __output__)
+exportBlog(__username__, __output__)
+#download(__testArticleUrl__, __output__)
